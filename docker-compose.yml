@@ -13,6 +13,8 @@ services:
     ports:
       # Host port can be overridden via CAMOFOX_PORT env var; defaults to 9377
       - "${CAMOFOX_PORT:-9377}:9377"
+      # noVNC web UI port (only needed when ENABLE_VNC=1)
+      - "${NOVNC_PORT:-6080}:6080"
 
     environment:
       # Server port inside the container (should match the exposed port)
@@ -43,6 +45,7 @@ services:
       # ENABLE_VNC: "1"
       # VNC_PASSWORD: "${VNC_PASSWORD:-}"
       # NOVNC_PORT: "6080"
+      # VNC_BIND: "0.0.0.0"    # default 127.0.0.1; set to 0.0.0.0 for remote access
 
     volumes:
       # Cookie files directory (read-only mount).
