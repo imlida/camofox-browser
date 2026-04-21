@@ -1,3 +1,5 @@
+**English** | [中文](README.zh-CN.md)
+
 <div align="center">
   <img src="fox.png" alt="camofox-browser" width="200" />
   <h1>camofox-browser</h1>

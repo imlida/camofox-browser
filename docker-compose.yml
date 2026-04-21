@@ -1,0 +1,69 @@
+# Camofox Browser - Docker Compose
+# Headless browser automation server for AI agents
+#
+# Usage:
+#   CAMOFOX_API_KEY=your-key docker compose up -d
+#   docker compose down
+
+services:
+  camofox-browser:
+    image: aigood/camofox-browser:latest
+    container_name: camofox-browser
+
+    ports:
+      # Host port can be overridden via CAMOFOX_PORT env var; defaults to 9377
+      - "${CAMOFOX_PORT:-9377}:9377"
+
+    environment:
+      # Server port inside the container (should match the exposed port)
+      CAMOFOX_PORT: "9377"
+
+      # API key for cookie import and protected endpoints.
+      # REQUIRED: set via host environment variable, e.g.:
+      #   CAMOFOX_API_KEY=your-generated-key docker compose up -d
+      CAMOFOX_API_KEY: "${CAMOFOX_API_KEY}"
+
+      # Admin key for privileged operations such as /stop (optional)
+      CAMOFOX_ADMIN_KEY: "${CAMOFOX_ADMIN_KEY:-}"
+
+      # Node.js max old space size to cap memory usage (MB)
+      MAX_OLD_SPACE_SIZE: "128"
+
+      # Run in production mode
+      NODE_ENV: "production"
+
+      # --- Proxy configuration (uncomment as needed) ---
+      # PROXY_HOST: "${PROXY_HOST:-}"
+      # PROXY_PORT: "${PROXY_PORT:-}"
+      # PROXY_USERNAME: "${PROXY_USERNAME:-}"
+      # PROXY_PASSWORD: "${PROXY_PASSWORD:-}"
+      # PROXY_STRATEGY: "${PROXY_STRATEGY:-round-robin}"
+
+      # --- VNC / noVNC configuration (uncomment as needed) ---
+      # ENABLE_VNC: "1"
+      # VNC_PASSWORD: "${VNC_PASSWORD:-}"
+      # NOVNC_PORT: "6080"
+
+    volumes:
+      # Cookie files directory (read-only mount).
+      # Place Netscape-format cookie files here for automatic import.
+      - ~/.camofox/cookies:/home/node/.camofox/cookies:ro
+
+      # Session persistence directory (read-write).
+      # Stores per-user browser storage state (localStorage, sessionStorage, etc.)
+      - ~/.camofox/profiles:/home/node/.camofox/profiles
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9377/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
